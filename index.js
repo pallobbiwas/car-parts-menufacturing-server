@@ -28,8 +28,11 @@ async function run() {
   try {
     await client.connect();
     const carCollection = client.db("car-parts").collection("tools");
+    const orderCollection = client.db("car-parts").collection("order");
     console.log("db connected");
 
+
+    //tools start
     //get tools
 
     app.get("/tools", async (req, res) => {
@@ -46,6 +49,33 @@ async function run() {
       const result = await carCollection.find(querry).toArray();
       res.send(result);
     });
+
+    //tootls end
+
+
+    //order start
+    //post api
+
+    app.post('/order', async(req, res)=> {
+      const orders = req.body;
+      const result = await orderCollection.insertOne(orders);
+      res.send(result);
+
+    });
+
+    //get api
+
+    app.get('/order/:email', async(req, res) => {
+      const email = req.params;
+      const querry = email
+      console.log(querry);
+
+      const result = await orderCollection.find(querry).toArray();
+      res.send(result);
+    })
+
+    //order end
+
   } finally {
     //   await client.close();
   }
