@@ -1,5 +1,10 @@
 const express = require("express");
-const { MongoClient, ServerApiVersion, ObjectId, ObjectID } = require("mongodb");
+const {
+  MongoClient,
+  ServerApiVersion,
+  ObjectId,
+  ObjectID,
+} = require("mongodb");
 const cors = require("cors");
 const app = express();
 require("dotenv").config();
@@ -33,7 +38,6 @@ async function run() {
 
     console.log("db connected");
 
-
     //tools start
     //get tools
 
@@ -52,25 +56,40 @@ async function run() {
       res.send(result);
     });
 
-    //tootls end
+    //post api
 
+    app.post("/tools", async (req, res) => {
+      const orders = req.body;
+      const result = await carCollection.insertOne(orders);
+      res.send(result);
+    });
+
+    //tootls end
 
     //order start
     //post api order
 
-    app.post('/order', async(req, res)=> {
+    app.post("/order", async (req, res) => {
       const orders = req.body;
       const result = await orderCollection.insertOne(orders);
       res.send(result);
-
     });
 
     //get api order
 
-    app.get('/order/:email', async(req, res) => {
+    app.get("/order/:email", async (req, res) => {
       const email = req.params;
-      const querry = email
+      const querry = email;
       console.log(querry);
+
+      const result = await orderCollection.find(querry).toArray();
+      res.send(result);
+    });
+
+    //get all order
+
+    app.get("/order", async (req, res) => {
+      const querry = {};
 
       const result = await orderCollection.find(querry).toArray();
       res.send(result);
@@ -78,13 +97,12 @@ async function run() {
 
     //delete order
 
-    app.delete('/order/:id', async(req, res) => {
-      const {id} = req.params;
-      const querry = {_id: ObjectId(id)};
+    app.delete("/order/:id", async (req, res) => {
+      const { id } = req.params;
+      const querry = { _id: ObjectId(id) };
       const result = await orderCollection.deleteOne(querry);
       res.send(result);
     });
-
 
     //order end
 
@@ -92,7 +110,7 @@ async function run() {
 
     //post api
 
-    app.post('/reviews', async (req, res) => {
+    app.post("/reviews", async (req, res) => {
       const review = req.body;
       const result = await reviewCollection.insertOne(review);
       res.send(result);
@@ -100,14 +118,12 @@ async function run() {
 
     //get api
 
-    app.get('/reviews', async (req, res) => {
+    app.get("/reviews", async (req, res) => {
       const result = await reviewCollection.find({}).toArray();
       res.send(result);
-    })
-
+    });
 
     //review end
-
   } finally {
     //   await client.close();
   }
