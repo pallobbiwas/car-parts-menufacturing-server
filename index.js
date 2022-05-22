@@ -1,5 +1,5 @@
 const express = require("express");
-const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId, ObjectID } = require("mongodb");
 const cors = require("cors");
 const app = express();
 require("dotenv").config();
@@ -54,7 +54,7 @@ async function run() {
 
 
     //order start
-    //post api
+    //post api order
 
     app.post('/order', async(req, res)=> {
       const orders = req.body;
@@ -63,7 +63,7 @@ async function run() {
 
     });
 
-    //get api
+    //get api order
 
     app.get('/order/:email', async(req, res) => {
       const email = req.params;
@@ -72,7 +72,17 @@ async function run() {
 
       const result = await orderCollection.find(querry).toArray();
       res.send(result);
-    })
+    });
+
+    //delete order
+
+    app.delete('/order/:id', async(req, res) => {
+      const {id} = req.params;
+      const querry = {_id: ObjectId(id)};
+      const result = await orderCollection.deleteOne(querry);
+      res.send(result);
+    });
+
 
     //order end
 
