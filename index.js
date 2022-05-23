@@ -35,6 +35,7 @@ async function run() {
     const carCollection = client.db("car-parts").collection("tools");
     const orderCollection = client.db("car-parts").collection("order");
     const reviewCollection = client.db("car-parts").collection("review");
+    const userewCollection = client.db("car-parts").collection("users");
 
     console.log("db connected");
 
@@ -124,6 +125,31 @@ async function run() {
     });
 
     //review end
+
+    //make admin role
+
+    app.put("/user/:email", async (req, res) => {
+      const email = req.params.email;
+      const user = req.body;
+      const options = { upsert: true };
+      const filter = { email: email };
+      const updateDoc = {
+        $set: user,
+      };
+      const result = await userewCollection.updateOne(
+        filter,
+        updateDoc,
+        options
+      );
+      res.send(result);
+    });
+
+    //user get api
+
+    app.get("/users", async (req, res) => {
+      const result = await userewCollection.find({}).toArray();
+      res.send(result);
+    });
   } finally {
     //   await client.close();
   }
