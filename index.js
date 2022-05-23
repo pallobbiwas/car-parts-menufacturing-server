@@ -101,7 +101,6 @@ async function run() {
       const email = req.params;
       const querry = email;
       const authHeader = req.headers.authorization;
-      console.log(authHeader);
 
       const result = await orderCollection.find(querry).toArray();
       res.send(result);
@@ -171,15 +170,9 @@ async function run() {
 
     app.put("/user/admin/:email", veriFyjwt, async (req, res) => {
       const email = req.params.email;
-      // const requester = req.decoded.email;
-      // const acount = await userewCollection.findOne({ email: requester });
-      const filter = { email: email };
-      const updateDoc = {
-        $set: { role: "admin" },
-      };
-      const result = await userewCollection.updateOne(filter, updateDoc);
-      res.send(result);
-      /* if (acount.role === "admin") {
+      const requester = req.decoded.email;
+      const acount = await userewCollection.findOne({ email: requester });
+      if (acount.role === "admin") {
         const filter = { email: email };
         const updateDoc = {
           $set: { role: "admin" },
@@ -189,14 +182,14 @@ async function run() {
       }
       else{
         res.status(403).send({message: 'you are not admin'})
-      } */
+      }
     });
 
     app.get("/users/:email", async (req, res) => {
       const email = req.params.email;
-      const result = await userewCollection.findOne({ emal: email });
+      const user = await userewCollection.findOne({ email: email });
       const isAdmin = user.role === "admin";
-
+      console.log(email, user, isAdmin);
       res.send({ admin: isAdmin });
     });
 
