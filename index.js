@@ -179,9 +179,8 @@ async function run() {
         };
         const result = await userewCollection.updateOne(filter, updateDoc);
         res.send(result);
-      }
-      else{
-        res.status(403).send({message: 'you are not admin'})
+      } else {
+        res.status(403).send({ message: "you are not admin" });
       }
     });
 
@@ -189,7 +188,6 @@ async function run() {
       const email = req.params.email;
       const user = await userewCollection.findOne({ email: email });
       const isAdmin = user.role === "admin";
-      console.log(email, user, isAdmin);
       res.send({ admin: isAdmin });
     });
 
@@ -199,6 +197,33 @@ async function run() {
       const result = await userewCollection.find({}).toArray();
       res.send(result);
     });
+
+    app.get("/profile/:email", async (req, res) => {
+      const email = req.params.email;
+      console.log(email);
+      const querry = { email: email };
+
+      const result = await userewCollection.find(querry).toArray();
+      res.send(result);
+    });
+
+    app.put("/profile/:id", async (req, res) => {
+      const id = req.params;
+      const user = req.body;
+      const options = { upsert: true };
+      const filter = { _id: ObjectId(id) };
+      const updateDoc = {
+        $set: user,
+      };
+      const result = await userewCollection.updateOne(
+        filter,
+        updateDoc,
+        options
+      );
+      res.send(result);
+    });
+
+
   } finally {
     //   await client.close();
   }
