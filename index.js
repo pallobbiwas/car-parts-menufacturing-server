@@ -5,6 +5,7 @@ const {
   ObjectId,
   ObjectID,
 } = require("mongodb");
+const jwt = require("jsonwebtoken");
 const cors = require("cors");
 const app = express();
 require("dotenv").config();
@@ -20,6 +21,24 @@ const port = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json());
+
+//custom middeltair
+
+function veriFyjwt(req, res, next) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) {
+    return res.status(401).send({ message: "unauthorized user" });
+  }
+  const token = authHeader.split(" ")[1];
+
+  jwt.verify(token, process.env.ACCESS_TOKEN, function (err, decoded) {
+    if (err) {
+      return res.status(403).send({ message: "forbidden" });
+    }
+    req.decoded = decoded;
+    next();
+  });
+}
 
 const uri = `mongodb+srv://${process.env.DB_NAME}:${process.env.DB_PASS}@cluster0.3mesu.mongodb.net/?retryWrites=true&w=majority`;
 console.log(uri);
@@ -81,7 +100,8 @@ async function run() {
     app.get("/order/:email", async (req, res) => {
       const email = req.params;
       const querry = email;
-      console.log(querry);
+      const authHeader = req.headers.authorization;
+      console.log(authHeader);
 
       const result = await orderCollection.find(querry).toArray();
       res.send(result);
@@ -141,7 +161,43 @@ async function run() {
         updateDoc,
         options
       );
+      const token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN, {
+        expiresIn: "1h",
+      });
+      res.send({ result, token });
+    });
+
+    //make admin
+
+    app.put("/user/admin/:email", veriFyjwt, async (req, res) => {
+      const email = req.params.email;
+      // const requester = req.decoded.email;
+      // const acount = await userewCollection.findOne({ email: requester });
+      const filter = { email: email };
+      const updateDoc = {
+        $set: { role: "admin" },
+      };
+      const result = await userewCollection.updateOne(filter, updateDoc);
       res.send(result);
+      /* if (acount.role === "admin") {
+        const filter = { email: email };
+        const updateDoc = {
+          $set: { role: "admin" },
+        };
+        const result = await userewCollection.updateOne(filter, updateDoc);
+        res.send(result);
+      }
+      else{
+        res.status(403).send({message: 'you are not admin'})
+      } */
+    });
+
+    app.get("/users/:email", async (req, res) => {
+      const email = req.params.email;
+      const result = await userewCollection.findOne({ emal: email });
+      const isAdmin = user.role === "admin";
+
+      res.send({ admin: isAdmin });
     });
 
     //user get api
