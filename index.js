@@ -52,6 +52,7 @@ async function run() {
     const orderCollection = client.db("car-parts").collection("order");
     const reviewCollection = client.db("car-parts").collection("review");
     const userewCollection = client.db("car-parts").collection("users");
+    const paymentCollection = client.db("car-parts").collection("paymnet");
 
     console.log("db connected");
 
@@ -102,6 +103,24 @@ async function run() {
       const result = await orderCollection.find(querry).toArray();
       res.send(result);
     });
+
+    //order patch for payment
+
+    app.put('/order/:id', async(req, res) => {
+      const id = req.params.id;
+      const payment = req.body;
+      const options = { upsert: true };
+      const filter = {_id: ObjectId(id)};
+      const updateDoc = {
+        $set: {
+          paid: true,
+          transactionId : payment.transactionId
+        }
+      }
+      const result = await paymentCollection.insertOne(payment);
+      const updatedOrder = await orderCollection.updateOne(filter, updateDoc, options);
+      res.send(updateDoc)
+    })
 
     //get order by id
 
