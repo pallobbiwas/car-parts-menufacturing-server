@@ -1,10 +1,6 @@
 const express = require("express");
-const {
-  MongoClient,
-  ServerApiVersion,
-  ObjectId,
-  ObjectID,
-} = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
+const stripe = require("stripe")(process.env.STRIPE_SECRET);
 const jwt = require("jsonwebtoken");
 const cors = require("cors");
 const app = express();
@@ -105,6 +101,8 @@ async function run() {
       const result = await orderCollection.find(querry).toArray();
       res.send(result);
     });
+
+    //get order by id
 
     //get all order
 
@@ -223,7 +221,30 @@ async function run() {
       res.send(result);
     });
 
+    //payment
 
+    app.post("/create-payment-intent", async (req, res) => {
+      const service = req.body;
+      const price = service.quntity;
+      const amount = price * 100;
+
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: amount,
+        currency: "usd",
+        payment_method_types: ["card"],
+      });
+      console.log(paymentIntent);
+      res.send({ clientSecret: paymentIntent.client_secret });
+    });
+
+    //payment
+    app.get("/orders/:id", async (req, res) => {
+      const id = req.params.id;
+      const querry = { _id: ObjectId(id) };
+
+      const result = await orderCollection.findOne(querry);
+      res.send(result);
+    });
   } finally {
     //   await client.close();
   }
