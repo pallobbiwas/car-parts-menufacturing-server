@@ -82,6 +82,16 @@ async function run() {
       res.send(result);
     });
 
+    //delete
+
+    app.delete("/tools/:id", async (req, res) => {
+      const id = req.params.id;
+      console.log(id);
+      const querry = { _id: ObjectId(id) };
+      const result = await carCollection.deleteOne(querry)
+      res.send(result);
+    });
+
     //tootls end
 
     //order start
@@ -164,6 +174,14 @@ async function run() {
     //review end
 
     //make admin role
+
+    app.delete("/user/:id", async (req, res) => {
+      const id = req.params.id;
+      console.log(id);
+      const querry = { _id: ObjectId(id) };
+      const result = await userewCollection.deleteOne(querry)
+      res.send(result);
+    });
 
     app.put("/user/:email", async (req, res) => {
       const email = req.params.email;
